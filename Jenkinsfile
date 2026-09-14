@@ -44,12 +44,13 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
+                    kubectl apply -f kubernetes/deployment.yaml
+                    kubectl apply -f kubernetes/service.yaml
+
                     kubectl set image deployment/devops-app \
                     devops-app=$DOCKER_IMAGE:$BUILD_NUMBER
 
-                    kubectl apply -f kubernetes/service.yaml
-
-                    kubectl rollout status deployment/devops-app
+                    kubectl rollout status deployment/devops-app --timeout=120s
                 '''
             }
         }
