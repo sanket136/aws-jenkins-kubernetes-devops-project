@@ -1,58 +1,44 @@
-resource "aws_security_group" "devops_sg" {
-  name        = "${var.project_name}-sg"
-  description = "Security group for Jenkins and Kubernetes nodes"
+resource "aws_security_group" "terraform_master_sg" {
+  name        = "${var.project_name}-terraform-master-sg"
+  description = "Security group for Terraform and Ansible control node"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "SSH"
+    description = "SSH access"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
+
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    description = "Jenkins"
+    description = "Jenkins Web UI"
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
+
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    description = "Kubernetes API Server"
-    from_port   = 6443
-    to_port     = 6443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "Kubernetes NodePort Range"
-    from_port   = 30000
-    to_port     = 32767
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    description = "Allow all outbound traffic"
+    description = "Allow internal communication between cluster nodes"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    self        = true
+  }
+
+  egress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
-    Name    = "${var.project_name}-sg"
+    Name    = "${var.project_name}-terraform-master-sg"
     Project = var.project_name
   }
 }
